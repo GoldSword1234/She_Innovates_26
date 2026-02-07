@@ -3,6 +3,29 @@
 	--bg1: #7f7fd5;
 	--bg2: #86a8e7;
 	--bg3: #91eae4;
+
+    .two-column-layout {
+    display: grid;
+    /* Creates two columns of equal width */
+    grid-template-columns: 1fr 1fr;
+    /* Adds space between the columns */
+    gap: 20px;
+    padding: 20px; /* Optional: adds space around the content */
+}
+
+.image-row {
+    display: flex; /* Makes items align in a row by default */
+    justify-content: center; /* Centers the images horizontally within the container */
+    align-items: center; /* Centers the images vertically (if they have different heights) */
+    gap: 10px; /* Adds space between the images */
+}
+
+/* Optional: Style individual images for size */
+.image-row img {
+    width: 30%; /* Example width, adjust as needed */
+    height: auto;
+}
+
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif}
