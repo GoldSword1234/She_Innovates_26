@@ -34,21 +34,29 @@ function goToBadges() {
 
 async function updateWelcomeMessage() {
   try {
-    const response = await fetch('https://api.jgao.cc/GetUser'); // API endpoint
+    const response = await fetch('https://api.jgao.cc/GetUser', {
+      method: 'GET',
+      credentials: 'include'   // REQUIRED
+    });
+
     if (!response.ok) throw new Error('Network response was not ok');
 
-    const data = await response.json(); // parse JSON
-    if (!Array.isArray(data) || data.length === 0) throw new Error('No user data found');
+    const data = await response.json();
 
-    const firstName = data[0].firstname || 'User'; // get firstname from first object
+    if (!Array.isArray(data) || data.length === 0)
+      throw new Error('No user data found');
 
-    // Update the h1 element
-    const welcomeElement = document.getElementById('welcome-message');
-    welcomeElement.textContent = `Welcome back, ${firstName}!`;
+    const firstName = data[0].firstname || 'User';
+
+    document.getElementById('welcome-message').textContent =
+      `Welcome back, ${firstName}!`;
+
   } catch (error) {
     console.error('Error fetching user data:', error);
   }
 }
+
+
 
 // Run after page loads
 window.addEventListener('DOMContentLoaded', updateWelcomeMessage);
