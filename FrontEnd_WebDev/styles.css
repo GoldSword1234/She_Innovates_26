@@ -25,6 +25,8 @@
   background-color: #315893;
   padding: 20px;
   margin: 20px;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn {
@@ -32,7 +34,6 @@
   outline: none;
   border: none;
 }
-
 
 .navigation-row {
   display: flex; /* Makes items align in a row by default */
@@ -74,4 +75,41 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#
   position: absolute; /* Position the icon absolutely */
   top: 10px;          /* Distance from the top edge */
   right: 10px;        /* Distance from the right edge */
+}
+
+
+
+/* finance module */
+.module {
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px;
+  background-color: #264574;
+  padding: 5px;
+  margin: 5px;
+}
+
+.lesson-container {
+  border-radius: 25px;
+  background-color: #b8cff0;
+  padding: 5px;
+  margin: 5px;
+  justify-content: center; 
+  align-items: center;
+}
+
+.lesson {
+  position: relative;
+  border-radius: 25px;
+  background-color: #315893;
+  padding: 20px;
+  margin: 20px;
+  justify-content: center; 
+  align-items: center;
+}
+
+.lesson-corner-icon {
+  position: absolute; 
+  bottom: 10px;          
+  right: 10px;    
 }
