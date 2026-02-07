@@ -33,22 +33,26 @@ async function updateWelcomeMessage() {
   try {
     const response = await fetch('https://api.jgao.cc/GetUser', {
       method: 'GET',
-      credentials: 'include' // <-- sends access_token_cookie
+      credentials: 'include'   // REQUIRED
     });
 
     if (!response.ok) throw new Error('Network response was not ok');
 
     const data = await response.json();
-    if (!Array.isArray(data) || data.length === 0) throw new Error('No user data found');
+
+    if (!Array.isArray(data) || data.length === 0)
+      throw new Error('No user data found');
 
     const firstName = data[0].firstname || 'User';
 
-    const welcomeElement = document.getElementById('welcome-message');
-    welcomeElement.textContent = `Welcome back, ${firstName}!`;
+    document.getElementById('welcome-message').textContent =
+      `Welcome back, ${firstName}!`;
+
   } catch (error) {
     console.error('Error fetching user data:', error);
   }
 }
+
 
 
 // Run after page loads
