@@ -16,19 +16,39 @@
 .two-column-layout{
   border-radius: 25px;
   background-color: #315893;
-  padding: 20px;
-  margin: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 72%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+.column-one {
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: 20px;
 }
 .column-two {
   justify-content: center;
   align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: 20px;
 }
 
 .content{
   border-radius: 25px;
   background-color: #315893;
   padding: 20px;
-  margin: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: 20px;
   justify-content: center;
   align-items: center;
 }

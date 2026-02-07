@@ -26,25 +26,50 @@ function goToBadges() {
 
 
 
+let overallProgressLoaded = false;
+let welcomeMessageLoaded = false;
 
+async function updateOverAllProgress() {
+  if (overallProgressLoaded) return;
+  overallProgressLoaded = true;
 
-
-async function updateWelcomeMessage() {
   try {
-    const response = await fetch('https://api.jgao.cc/GetUser', {
+    const response = await fetch('https://api.jgao.cc/GetOverAllStatus', {
       method: 'GET',
-      credentials: 'include'   // REQUIRED
+      credentials: 'include'
     });
 
     if (!response.ok) throw new Error('Network response was not ok');
 
     const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0)
+      throw new Error('No status data found');
 
+    const percentage = data[0].percentage ?? 0;
+    document.getElementById('overall-percentage').textContent = `${percentage}%`;
+
+  } catch (error) {
+    console.error('Error fetching overall status:', error);
+  }
+}
+
+async function updateWelcomeMessage() {
+  if (welcomeMessageLoaded) return;
+  welcomeMessageLoaded = true;
+
+  try {
+    const response = await fetch('https://api.jgao.cc/GetUser', {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
     if (!Array.isArray(data) || data.length === 0)
       throw new Error('No user data found');
 
     const firstName = data[0].firstname || 'User';
-
     document.getElementById('welcome-message').textContent =
       `Welcome back, ${firstName}!`;
 
@@ -53,7 +78,7 @@ async function updateWelcomeMessage() {
   }
 }
 
-
-
-// Run after page loads
-window.addEventListener('DOMContentLoaded', updateWelcomeMessage);
+document.addEventListener('DOMContentLoaded', () => {
+  updateOverAllProgress();
+  updateWelcomeMessage();
+});
