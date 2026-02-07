@@ -32,6 +32,8 @@
   margin-top: auto;
   margin-bottom: 20px;
 }
+
+
 .column-two {
   justify-content: center;
   align-items: center;
@@ -134,4 +136,24 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#
   position: absolute; 
   bottom: 5px;          
   right: 5px;    
+}
+
+
+.profile-card {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 25px;
+    border-radius: 12px;
+    background: #f7f7f7;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.profile-card h2 {
+    margin-bottom: 15px;
+}
+
+.profile-card p {
+    margin: 8px 0;
+    font-size: 16px;
 }

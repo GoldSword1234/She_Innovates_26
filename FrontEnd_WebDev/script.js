@@ -22,6 +22,11 @@ function goToBadges() {
   window.location.href = "badges.html"; // Replace with your target URL
 }
 
+function goToProfile() {
+    window.location.href = "profile.html";
+}
+
+
 
 
 
@@ -142,8 +147,7 @@ function createModuleCard(m) {
   iconSection.appendChild(info);
 
   const title = document.createElement("h1");
-  title.textContent = m.modulename || "Untitled Module";
-
+  title.textContent = m.moduletype || "Untitled Module";
   const btn = document.createElement("button");
   btn.className = "btn";
   btn.type = "button";
@@ -201,7 +205,88 @@ function groupBy(arr, keyFn) {
   And remove credentials: "include".
 */
 
+async function loadFinanceLessons() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
+        const lessonContainer = document.getElementById("lessonContainer");
+
+        // Assuming first user
+        const lessons = data[0].lessons;
+
+        lessonContainer.innerHTML = ""; // clear existing content
+
+        lessons.forEach((lesson, index) => {
+            if (lesson.moduletype === "Finance") {
+                const lessonDiv = document.createElement("div");
+                lessonDiv.classList.add("lesson");
+
+                lessonDiv.innerHTML = `
+                    <h2 style="text-align: center;">
+                        Lesson ${index + 1}: ${lesson.modulename}
+                        <div class="lesson-corner-icon">
+                            <button class="btn" onclick="goToLesson(${lesson.lessonid})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#fff"
+                                    class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147
+                                    2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1
+                                    0-.708.708L10.293 7.5z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </h2>
+                    <p style="text-align:center;">${lesson.lesson_description}</p>
+                `;
+
+                lessonContainer.appendChild(lessonDiv);
+            }
+        });
+    } catch (error) {
+        console.error("Error loading lessons:", error);
+    }
+}
+
+function goToLesson(lessonId) {
+    // example redirect
+    window.location.href = `lesson.html?lessonId=${lessonId}`;
+}
+
+// Load lessons on page load
+// loadFinanceLessons();
+
+
+async function loadProfile() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        // Assuming first user in array
+        const user = data[0];
+
+        const profileCard = document.getElementById("profileCard");
+
+        // Format DOB nicely
+        const dob = new Date(user.dateofbirth).toLocaleDateString();
+
+        profileCard.innerHTML = `
+            <h2>${user.firstname} ${user.lastname}</h2>
+            <p><strong>User ID:</strong> ${user.userid}</p>
+            <p><strong>Auth User ID:</strong> ${user.auth_user_id}</p>
+            <p><strong>Date of Birth:</strong> ${dob}</p>
+        `;
+    } catch (error) {
+        console.error("Error loading profile:", error);
+    }
+}
+
+// Load profile on page load
+//loadProfile();
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("profileCard")) {
+    loadProfile();
+  }
+});
 
 
 
