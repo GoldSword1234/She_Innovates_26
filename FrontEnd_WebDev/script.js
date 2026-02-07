@@ -125,7 +125,7 @@ function createModuleCard(m) {
 
   const p = document.createElement("p");
   const count = Number(m.lesson_count);
-  p.textContent = `${Number.isFinite(count) ? count : 0} ${count === 1 ? "Module" : "Modules"}`;
+  p.textContent = `${Number.isFinite(count) ? count : 0} ${count === 1 ? "Lessons" : "Lessons"}`;
 
   const info = document.createElement("div");
   info.className = "corner-icon";
