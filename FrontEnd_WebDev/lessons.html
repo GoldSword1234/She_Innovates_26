@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lessons — She Innovates</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <h1 id="pageTitle" style="text-align: center;">Finance Lessons</h1>
+
+  <!-- We will inject modules + lessons here -->
+  <div id="modulesRoot"></div>
+
+  <script>
+    const API_BASE = "https://api.jgao.cc";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+
+      // Coming from modules page like:
+      // lessons.html?moduletype=Finance
+      const moduletype = params.get("moduletype") || "Finance"; // default to Finance
+      const modulename = params.get("modulename"); // optional (not required)
+
+      // Title
+      const titleEl = document.getElementById("pageTitle");
+      titleEl.textContent = `${moduletype} Lessons`;
+
+      loadLessons(moduletype, modulename);
+    });
+
+    async function loadLessons(moduletype, modulename) {
+      const root = document.getElementById("modulesRoot");
+      root.innerHTML = "";
+
+      try {
+        const url = new URL(`${API_BASE}/GetTasks`);
+        url.searchParams.set("moduletype", moduletype);
+
+        const res = await fetch(url.toString(), {
+          method: "GET",
+          credentials: "include",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!res.ok) {
+          const bodyText = await res.text().catch(() => "");
+          throw new Error(`GetTasks failed: ${res.status} ${res.statusText} ${bodyText}`);
+        }
+
+        const data = await res.json();
+
+        const user = Array.isArray(data) ? data[0] : null;
+        const lessons = user?.lessons ?? [];
+
+        if (!lessons.length) {
+          root.innerHTML = `<p style="text-align:center;">No lessons found.</p>`;
+          return;
+        }
+
+        renderFinanceTemplate(lessons, root);
+
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = `<p style="text-align:center;">Error loading lessons: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    // --- RENDER using your Finance template structure ---
+    function renderFinanceTemplate(lessons, root) {
+      // Group lessons by modulename to produce "Module X: <modulename>"
+      // (Your API returns lessons with "modulename" and "lesson_description")
+      const groups = groupBy(lessons, l => l.modulename || "Module");
+
+      const moduleNames = Object.keys(groups);
+
+      moduleNames.forEach((modName, idx) => {
+        // Module header (matches your template)
+        const moduleDiv = document.createElement("div");
+        moduleDiv.className = "module";
+        moduleDiv.innerHTML = `<h2> Module ${idx + 1}: ${escapeHtml(modName)} </h2>`;
+        root.appendChild(moduleDiv);
+
+        // Lesson container (matches your template)
+        const container = document.createElement("div");
+        container.className = "lesson-container";
+
+        // Sort lessons by lessonid (or you can sort by lesson_description)
+        const sortedLessons = [...groups[modName]].sort((a, b) => (a.lessonid ?? 0) - (b.lessonid ?? 0));
+
+        sortedLessons.forEach((lesson, lessonIdx) => {
+          const lessonDiv = document.createElement("div");
+          lessonDiv.className = "lesson";
+
+          const lessonTitle = `Lesson ${lessonIdx + 1}: ${lesson.lesson_description || "Untitled Lesson"}`;
+
+          lessonDiv.innerHTML = `
+            <h2>
+              ${escapeHtml(lessonTitle)}
+              <div class="lesson-corner-icon">
+                <button class="btn" type="button" aria-label="Open lesson">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#fff" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                  </svg>
+                </button>
+              </div>
+            </h2>
+          `;
+
+          // Arrow click -> go to a task page (or lesson detail page)
+          // You can change "tasks.html" to whatever page you want.
+          const btn = lessonDiv.querySelector("button.btn");
+          btn.addEventListener("click", () => {
+            const url = new URL("tasks.html", window.location.href);
+            url.searchParams.set("lessonid", String(lesson.lessonid ?? ""));
+            url.searchParams.set("modulename", String(lesson.modulename ?? ""));
+            url.searchParams.set("moduletype", String(lesson.moduletype ?? ""));
+            window.location.href = url.toString();
+          });
+
+          container.appendChild(lessonDiv);
+        });
+
+        root.appendChild(container);
+      });
+    }
+
+    // --- helpers ---
+    function groupBy(arr, keyFn) {
+      return arr.reduce((acc, item) => {
+        const k = String(keyFn(item));
+        (acc[k] ||= []).push(item);
+        return acc;
+      }, {});
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "").replace(/[&<>"']/g, (m) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[m]));
+    }
+  </script>
+</body>
+</html>

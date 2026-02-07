@@ -56,7 +56,6 @@ function goToProfile() {
 
 
 const API_BASE = "https://api.jgao.cc";
-
 document.addEventListener("DOMContentLoaded", () => {
   loadModules();
 });
@@ -148,10 +147,11 @@ function createModuleCard(m) {
 
   const title = document.createElement("h1");
   title.textContent = m.moduletype || "Untitled Module";
+
   const btn = document.createElement("button");
   btn.className = "btn";
   btn.type = "button";
-  btn.setAttribute("aria-label", `Open module ${m.modulename || ""}`);
+  btn.setAttribute("aria-label", `Open module ${m.moduletype || ""}`);
   btn.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
       <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
@@ -160,13 +160,15 @@ function createModuleCard(m) {
 
   // Where the button navigates:
   // Update this to whatever your module details page is.
-  btn.addEventListener("click", () => {
-    // Example: module.html?parentmoduleid=1&name=Investing
-    const url = new URL("module.html", window.location.href);
-    url.searchParams.set("parentmoduleid", String(m.parentmoduleid ?? ""));
-    url.searchParams.set("name", String(m.modulename ?? ""));
-    window.location.href = url.toString();
-  });
+btn.addEventListener("click", () => {
+  const url = new URL("lessons.html", window.location.href);
+
+  url.searchParams.set("moduletype", m.moduletype); // e.g. Finance
+  url.searchParams.set("modulename", m.modulename); // optional (for page title)
+
+  window.location.href = url.toString();
+});
+
 
   section.appendChild(iconSection);
   section.appendChild(title);
@@ -255,38 +257,6 @@ function goToLesson(lessonId) {
 // Load lessons on page load
 // loadFinanceLessons();
 
-
-async function loadProfile() {
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-
-        // Assuming first user in array
-        const user = data[0];
-
-        const profileCard = document.getElementById("profileCard");
-
-        // Format DOB nicely
-        const dob = new Date(user.dateofbirth).toLocaleDateString();
-
-        profileCard.innerHTML = `
-            <h2>${user.firstname} ${user.lastname}</h2>
-            <p><strong>User ID:</strong> ${user.userid}</p>
-            <p><strong>Auth User ID:</strong> ${user.auth_user_id}</p>
-            <p><strong>Date of Birth:</strong> ${dob}</p>
-        `;
-    } catch (error) {
-        console.error("Error loading profile:", error);
-    }
-}
-
-// Load profile on page load
-//loadProfile();
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("profileCard")) {
-    loadProfile();
-  }
-});
 
 
 

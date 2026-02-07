@@ -1,19 +1,93 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>My Profile</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Profile</title>
+
+  <style>
+    :root {
+	--bg1: #7f7fd5;
+	--bg2: #86a8e7;
+	--bg3: #91eae4;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .profile-card {
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 25px;
+      border-radius: 12px;
+      background: #315893;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .profile-card h2 {
+      margin-bottom: 12px;
+    }
+
+    .profile-card p {
+      margin: 6px 0;
+    }
+  </style>
 </head>
+
 <body>
 
-    <h1 style="text-align:center;">My Profile</h1>
+  <h1 style="text-align:center;">My Profile</h1>
 
-    <div class="profile-card" id="profileCard">
-        <!-- Profile data loads here -->
-    </div>
+  <div id="profileCard" class="profile-card">
+    Loading profile...
+  </div>
 
-    <script src="profile.js"></script>
+  <script>
+    const API_BASE = "https://api.jgao.cc";
+
+    async function loadProfile() {
+      try {
+        const response = await fetch(API_BASE + "/GetUsers", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error("GetUsers failed: " + text);
+        }
+
+        const data = await response.json();
+        console.log("Profile data:", data);
+
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("No user data returned");
+        }
+
+        const user = data[0];
+        const dob = new Date(user.dateofbirth).toLocaleDateString();
+
+        document.getElementById("profileCard").innerHTML = `
+          <h2>${user.firstname} ${user.lastname}</h2>
+          <p><strong>User ID:</strong> ${user.userid}</p>
+          <p><strong>Auth User ID:</strong> ${user.auth_user_id}</p>
+          <p><strong>Date of Birth:</strong> ${dob}</p>
+        `;
+      } catch (error) {
+        console.error(error);
+        document.getElementById("profileCard").innerHTML =
+          "<p style='color:red;'>Failed to load profile</p>";
+      }
+    }
+
+    // ✅ Only runs when this page loads
+    document.addEventListener("DOMContentLoaded", loadProfile);
+  </script>
+
 </body>
 </html>
