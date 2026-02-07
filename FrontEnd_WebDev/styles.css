@@ -19,6 +19,10 @@
   padding: 20px;
   margin: 20px;
 }
+.column-two {
+  justify-content: center;
+  align-items: center;
+}
 
 .content{
   border-radius: 25px;
