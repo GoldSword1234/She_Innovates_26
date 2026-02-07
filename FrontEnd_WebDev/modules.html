@@ -1,77 +1,28 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Modules — She Innovates</title>
-	<link rel="stylesheet" href="styles.css">
-    <link rel="script" href = "script.js">
-   
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modules — She Innovates</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-	<header class="top-text">
-		<div class="container">
-			<h1>Module Courses</h1>
-		</div>
-	</header>
+  <header class="top-text">
+    <div class="container">
+      <h1>Module Courses</h1>
+    </div>
+  </header>
 
-	<main>
-		<section class="content">
-			<div class="icon-section">
-			<p>5 Modules</p>
-			<div class = "corner-icon" >
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-            </svg>
-			</div>
-			</div>
-			
-			<h1>Finances</h1>
-            
-			<button class = "btn" onclick="goToFinance()">
-			<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
-				<path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
-			</svg> </button>
-           
-        </section>
-	</main>
+  <main>
+    <!-- This is where modules will be injected -->
+    <div id="modulesRoot"></div>
 
-    <main>
-		<section class="content">
-			<div class="icon-section">
-			<p>5 Modules</p>
-			<div class = "corner-icon" >
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-            </svg>
-			</div>
-			</div>
-            <h1>Car Mechanics</h1>
-            
-		</section>
-	</main>
+    <!-- Optional status/error text -->
+    <p id="modulesStatus" style="padding: 0 16px;"></p>
+  </main>
 
-    <main>
-		<section class="content">
-			<div class="icon-section">
-			<p> 7 Modules</p>
-			<div class="corner-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-            </svg>
-			</div>
-			</div>
-            <h1>Home Maintenance</h1>
-         
-		</section>
-	</main>
-
-
-	  <main class="navigation-row">
+       <main class="navigation-row">
         <div class="image-row">
         <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
             <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
@@ -79,10 +30,12 @@
         </div>
         
         <div class="image-row">
-        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-award" viewBox="0 0 16 16">
+            <button class = "btn" onclick="goToBadges()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill=#fff class="bi bi-award" viewBox="0 0 16 16">
             <path d="M9.669.864 8 0 6.331.864l-1.858.282-.842 1.68-1.337 1.32L2.6 6l-.306 1.854 1.337 1.32.842 1.68 1.858.282L8 12l1.669-.864 1.858-.282.842-1.68 1.337-1.32L13.4 6l.306-1.854-1.337-1.32-.842-1.68zm1.196 1.193.684 1.365 1.086 1.072L12.387 6l.248 1.506-1.086 1.072-.684 1.365-1.51.229L8 10.874l-1.355-.702-1.51-.229-.684-1.365-1.086-1.072L3.614 6l-.25-1.506 1.087-1.072.684-1.365 1.51-.229L8 1.126l1.356.702z"/>
             <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1z"/>
         </svg>
+        </button>
         </div>
         
         <div class="image-row">
@@ -93,7 +46,6 @@
         </div>
     </main>
 
-	<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-

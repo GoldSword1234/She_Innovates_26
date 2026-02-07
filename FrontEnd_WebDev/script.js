@@ -26,6 +26,186 @@ function goToBadges() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const API_BASE = "https://api.jgao.cc";
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadModules();
+});
+
+async function loadModules() {
+  const root = document.getElementById("modulesRoot");
+  const statusEl = document.getElementById("modulesStatus");
+
+  root.innerHTML = "";
+  statusEl.textContent = "Loading modules...";
+
+  try {
+    const res = await fetch(`${API_BASE}/GetModules`, {
+      method: "GET",
+      credentials: "include", // IMPORTANT if auth is cookie-based
+      headers: {
+        "Accept": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      // Useful debugging info:
+      const bodyText = await res.text().catch(() => "");
+      throw new Error(`GetModules failed: ${res.status} ${res.statusText} ${bodyText}`);
+    }
+
+    const modules = await res.json();
+
+    if (!Array.isArray(modules) || modules.length === 0) {
+      statusEl.textContent = "No modules returned.";
+      return;
+    }
+
+    statusEl.textContent = "";
+    renderModules(modules, root);
+
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `Error loading modules: ${err.message}`;
+  }
+}
+
+function renderModules(modules, root) {
+  // Group by parentmoduleid (optional, but matches your data structure)
+  const groups = groupBy(modules, m => m.parentmoduleid ?? "unknown");
+
+  // Sort groups by numeric parentmoduleid if possible
+  const groupKeys = Object.keys(groups).sort((a, b) => Number(a) - Number(b));
+
+  for (const key of groupKeys) {
+    const group = groups[key];
+
+    // If you don’t want group headers, remove this block.
+    // const groupHeader = document.createElement("h2");
+    // groupHeader.textContent = `Module Group ${key}`;
+    // groupHeader.style.padding = "0 16px";
+    // root.appendChild(groupHeader);
+
+    for (const m of group) {
+      root.appendChild(createModuleCard(m));
+    }
+  }
+}
+
+function createModuleCard(m) {
+  const section = document.createElement("section");
+  section.className = "content";
+
+  const iconSection = document.createElement("div");
+  iconSection.className = "icon-section";
+
+  const p = document.createElement("p");
+  const count = Number(m.lesson_count);
+  p.textContent = `${Number.isFinite(count) ? count : 0} ${count === 1 ? "Module" : "Modules"}`;
+
+  const info = document.createElement("div");
+  info.className = "corner-icon";
+  info.title = m.description || "";
+
+  info.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+    </svg>
+  `;
+
+  iconSection.appendChild(p);
+  iconSection.appendChild(info);
+
+  const title = document.createElement("h1");
+  title.textContent = m.modulename || "Untitled Module";
+
+  const btn = document.createElement("button");
+  btn.className = "btn";
+  btn.type = "button";
+  btn.setAttribute("aria-label", `Open module ${m.modulename || ""}`);
+  btn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+      <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+    </svg>
+  `;
+
+  // Where the button navigates:
+  // Update this to whatever your module details page is.
+  btn.addEventListener("click", () => {
+    // Example: module.html?parentmoduleid=1&name=Investing
+    const url = new URL("module.html", window.location.href);
+    url.searchParams.set("parentmoduleid", String(m.parentmoduleid ?? ""));
+    url.searchParams.set("name", String(m.modulename ?? ""));
+    window.location.href = url.toString();
+  });
+
+  section.appendChild(iconSection);
+  section.appendChild(title);
+
+  // If you want the description visible (not just tooltip), uncomment:
+  // if (m.description) {
+  //   const desc = document.createElement("p");
+  //   desc.textContent = m.description;
+  //   section.appendChild(desc);
+  // }
+
+  section.appendChild(btn);
+
+  return section;
+}
+
+function groupBy(arr, keyFn) {
+  return arr.reduce((acc, item) => {
+    const k = String(keyFn(item));
+    (acc[k] ||= []).push(item);
+    return acc;
+  }, {});
+}
+
+/*
+  If you are using Authorization headers (NOT cookie auth), do something like:
+
+  const token = localStorage.getItem("access_token");
+  const res = await fetch(`${API_BASE}/GetModules`, {
+    headers: {
+      "Accept": "application/json",
+      "Authorization": `Bearer ${token}`,
+    }
+  });
+
+  And remove credentials: "include".
+*/
+
+
+
+
+
+
 let overallProgressLoaded = false;
 let welcomeMessageLoaded = false;
 

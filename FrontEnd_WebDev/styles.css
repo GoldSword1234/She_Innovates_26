@@ -121,7 +121,6 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#
   justify-content: center; 
   align-items: center;
 }
-
 .lesson {
   position: relative;
   border-radius: 25px;
@@ -131,9 +130,8 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#
   justify-content: center; 
   align-items: center;
 }
-
 .lesson-corner-icon {
   position: absolute; 
-  bottom: 10px;          
-  right: 10px;    
+  bottom: 5px;          
+  right: 5px;    
 }
