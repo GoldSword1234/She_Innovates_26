@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from collections import defaultdict
 from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required, get_jwt_identity,set_access_cookies
 )
@@ -6,6 +7,8 @@ from sqlalchemy import create_engine, text
 import bcrypt
 from datetime import timedelta
 from datetime import datetime
+from flask_cors import CORS
+
 # 1. Define your database connection details
 DB_USER = "python"
 DB_PASSWORD = "$HxiCRmKRd3P"
@@ -24,8 +27,11 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'sdawadvasdadwawd'  # Change this to a secure secret key
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_COOKIE_SECURE"] = False      # True in HTTPS
+app.config["JWT_COOKIE_SECURE"] = True      # True in HTTPS
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_COOKIE_SAMESITE"] = "None"
+app.config["JWT_COOKIE_DOMAIN"] = ".jgao.cc"
+
 jwt = JWTManager(app)
 
 # ======================
@@ -50,17 +56,43 @@ database_url = (
     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     "?sslmode=disable&connect_timeout=10"
 )
-engine = create_engine(database_url)
+engine = create_engine(
+    database_url,
+    pool_size=10,          # how many connections to keep open
+    max_overflow=20,       # extra temporary connections under load
+    pool_timeout=30,       # seconds to wait for a free connection
+    pool_recycle=1800,     # recycle connections every 30 min (avoids idle disconnect issues)
+    pool_pre_ping=True,    # checks connection health before using it (fixes "server closed the connection")
+)
 
 # Create Flask app
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'sdawadvasdadwawd'  # Change this to a secure secret key
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/*": {"origins": [
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://white-moss-0a8ef8f0f.1.azurestaticapps.net",
+        "https://white-moss-0a8ef8f0f.1.azurestaticapps.net",
+        "https://maddadskills.jgao.cc"
+
+    ]}}
+)
+
+app.config["JWT_SECRET_KEY"] = "8c4f6d2c9f5e0d6a3a2d9e41f8e5b9f8b6d9e7f1c5a3b4d8e6c2a9f1d3e7b4"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_COOKIE_SECURE"] = False      # True in HTTPS
-app.config["JWT_COOKIE_CSRF_PROTECT"] = True
-jwt = JWTManager(app)
 
+# --- IMPORTANT FOR SUBDOMAIN FRONTEND <-> API COOKIE ---
+app.config["JWT_COOKIE_DOMAIN"] = ".jgao.cc"     # share across api.jgao.cc + jgao.cc
+app.config["JWT_COOKIE_SAMESITE"] = "None"       # cross-site cookie
+app.config["JWT_COOKIE_SECURE"] = True           # requires HTTPS
+app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+
+jwt = JWTManager(app)
 # ======================
 # Register User
 # ======================
@@ -137,18 +169,18 @@ def login():
         return jsonify({"error": "Username and password required"}), 400
 
     query = text("""
-        SELECT id, password_hash
+        SELECT id AS auth_user_id, password_hash
         FROM "MadDadSkills".auth_users
         WHERE username = :username
     """)
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         user = conn.execute(query, {"username": username}).fetchone()
 
     if user is None:
         return jsonify({"error": "Invalid credentials"}), 401
 
-    user_id, password_hash = user
+    auth_user_id, password_hash = user
 
     if not bcrypt.checkpw(
         password.encode("utf-8"),
@@ -156,12 +188,11 @@ def login():
     ):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    access_token = create_access_token(identity=str(user_id))
+    access_token = create_access_token(identity=str(auth_user_id))
 
-    response = jsonify({"message": "Login successful"})
+    response = jsonify({"message": "Login successful","username": username,"auth_user_id": auth_user_id })
     set_access_cookies(response, access_token)
     return response, 200
-
 
 
 
@@ -177,10 +208,15 @@ def login():
 def get_users():
     # SQL query to fetch users from the database
     query = text('SELECT * FROM "MadDadSkills".users')
+    auth_user_id = get_jwt_identity()
+    #query = text('SELECT * FROM "MadDadSkills".task_overview WHERE auth_user_id = :user_id')
+
+
     
     try:
         # Execute the query and fetch results
-        with engine.connect() as connection:
+        with engine.begin() as connection:
+            # result = connection.execute(query, {"user_id": user_id})
             result = connection.execute(query)
             rows = result.fetchall()
 
@@ -194,13 +230,44 @@ def get_users():
     except Exception as e:
         # Return a 500 error if something goes wrong
         return jsonify({"error": str(e)}), 500
+        
+@app.route('/GetUser', methods=['GET'])
+@jwt_required()
+def get_user():
+    # SQL query to fetch users from the database
+    # query = text('SELECT * FROM "MadDadSkills".users')
+    auth_user_id = get_jwt_identity()
+    query = text('SELECT * FROM "MadDadSkills".users WHERE auth_user_id = :user_id')
     
+
+    
+    try:
+        # Execute the query and fetch results
+        with engine.begin() as connection:
+            result = connection.execute(query, {"user_id": auth_user_id})
+            # result = connection.execute(query)
+            rows = result.fetchall()
+
+        # Convert the rows to dictionaries using column names
+        column_names = result.keys()  # Get column names
+        users = [dict(zip(column_names, row)) for row in rows]
+
+        # Return the users as a JSON response
+        return jsonify(users)
+    
+    except Exception as e:
+        # Return a 500 error if something goes wrong
+        return jsonify({"error": str(e)}), 500
+
+
+
 @app.route('/GetLessons', methods=['GET'])
 @jwt_required()
 def get_Lessons():
     # SQL query to fetch users from the database
-    query = text('SELECT * FROM "MadDadSkills".lesson')
     
+    user_id = get_jwt_identity()
+    query = text('SELECT * FROM "MadDadSkills".lesson')
     try:
         # Execute the query and fetch results
         with engine.connect() as connection:
@@ -217,19 +284,46 @@ def get_Lessons():
     except Exception as e:
         # Return a 500 error if something goes wrong
         return jsonify({"error": str(e)}), 500
+
+@app.route('/GetModules', methods=['GET'])
+@jwt_required()
+def get_modules():
+    # SQL query to fetch users from the database
     
+    user_id = get_jwt_identity()
+    query = text('SELECT * FROM "MadDadSkills"."Get_Modules"')
+    try:
+        # Execute the query and fetch results
+        with engine.begin() as connection:
+            result = connection.execute(query)
+            rows = result.fetchall()
+
+        # Convert the rows to dictionaries using column names
+        column_names = result.keys()  # Get column names
+        users = [dict(zip(column_names, row)) for row in rows]
+
+        # Return the users as a JSON response
+        return jsonify(users)
+    
+    except Exception as e:
+        # Return a 500 error if something goes wrong
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 @app.route('/GetOverAllStatus', methods=['GET'])
 @jwt_required()
 def get_OverAllStatus():
     # SQL query to fetch users from the database
-    query = text('SELECT * FROM "MadDadSkills".overall_status')
+    query = text('SELECT * FROM "MadDadSkills".overall_status WHERE auth_user_id = :user_id')
+    user_id = get_jwt_identity()
     
     try:
         # Execute the query and fetch results
         with engine.connect() as connection:
-            result = connection.execute(query)
+            # result = connection.execute(query)
+            result = connection.execute(query, {"user_id": user_id})
             rows = result.fetchall()
 
         # Convert the rows to dictionaries using column names
@@ -242,6 +336,74 @@ def get_OverAllStatus():
     except Exception as e:
         # Return a 500 error if something goes wrong
         return jsonify({"error": str(e)}), 500
+
+@app.route('/GetTasks', methods=['GET'])
+@jwt_required()
+def get_tasks():
+    
+    user_id = get_jwt_identity()
+    moduletype = request.args.get("moduletype")  # e.g. "Finance"
+
+    base_sql = '''
+        SELECT *
+        FROM "MadDadSkills".task_overview
+        WHERE auth_user_id = :user_id
+    '''
+
+    params = {"user_id": user_id}
+
+    if moduletype:
+        base_sql += ' AND moduletype = :moduletype'
+        params["moduletype"] = moduletype
+
+    query = text(base_sql)
+
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query, params)
+            rows = result.fetchall()
+            column_names = result.keys()
+
+        rows_dict = [dict(zip(column_names, row)) for row in rows]
+
+        grouped_by_user = defaultdict(lambda: defaultdict(lambda: {"tasks": []}))
+
+        for row in rows_dict:
+            user = row["fullname"]
+            lesson_key = (row["lessonid"], row["modulename"])
+
+            if "lessonid" not in grouped_by_user[user][lesson_key]:
+                grouped_by_user[user][lesson_key].update({
+                    "lessonid": row["lessonid"],
+                    "lesson_description": row["lesson_description"],
+                    "modulename": row["modulename"],
+                    "module_description": row["module_description"],
+                    "moduletype": row["moduletype"],
+                })
+
+            grouped_by_user[user][lesson_key]["tasks"].append({
+                "taskid": row["taskid"],
+                "name": row["name"],
+                "sequence": row["sequence"],
+                "status": row["status"],
+                "taskstatusid": row["taskstatusid"]
+            })
+
+        result_list = []
+        for user, lessons in grouped_by_user.items():
+            result_list.append({
+                "fullname": user,
+                "lessons": list(lessons.values())
+            })
+
+        return jsonify(result_list)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 @app.route('/', methods=['GET'])
 def home():
