@@ -4,16 +4,13 @@
 	--bg2: #86a8e7;
 	--bg3: #91eae4;
 
-    .two-column-layout {
-    display: grid;
+.two-column-layout {
+  display: grid;
     /* Creates two columns of equal width */
-    grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
     /* Adds space between the columns */
-    gap: 20px;
-    padding: 20px; /* Optional: adds space around the content */
-}
-
-.two-column-layout{
+  gap: 20px;
+  padding: 20px; /* Optional: adds space around the content */
   border-radius: 25px;
   background-color: #315893;
   justify-content: center;
@@ -167,7 +164,7 @@ body {
 body {
   background-color: #86a8e7;
   font-size: 16px;
-  margin-top: 5em;
+  margin-top: 15em;
 }
 
 * {
@@ -176,8 +173,8 @@ body {
 }
 
 .dino {
-  width: 16em;
-  height: 20em;
+  width: 14em;
+  height: 16em;
   margin: 0 auto;
   position: relative;
   -webkit-animation: walk-bounce-animation 1.5s infinite;
@@ -185,10 +182,11 @@ body {
 }
 
 .dino__head {
-  height: 47%;
+  height: 45%;
   margin-left: 33.333%;
   width: 66.666%;
   position: relative;
+  margin-top: 15%;
 }
 
 .dino__head__back {
