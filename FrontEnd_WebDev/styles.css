@@ -51,7 +51,10 @@
   justify-content: center;
   align-items: center;
 }
-
+.content:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
 .btn {
   background: none;
   outline: none;
