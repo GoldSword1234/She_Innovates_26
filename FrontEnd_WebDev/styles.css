@@ -4,16 +4,13 @@
 	--bg2: #86a8e7;
 	--bg3: #91eae4;
 
-    .two-column-layout {
-    display: grid;
+.two-column-layout {
+  display: grid;
     /* Creates two columns of equal width */
-    grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
     /* Adds space between the columns */
-    gap: 20px;
-    padding: 20px; /* Optional: adds space around the content */
-}
-
-.two-column-layout{
+  gap: 20px;
+  padding: 20px; /* Optional: adds space around the content */
   border-radius: 25px;
   background-color: #315893;
   justify-content: center;
@@ -82,16 +79,6 @@
   margin-left: 15px;
   margin-right: 15px;
 }
-
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif}
-body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#fff}
-.top-text{padding:48px 16px;text-align:center}
-.top-text .container{max-width:900px;margin:0 auto}
-.top-text h1{margin:0;font-size:clamp(1.6rem,4vw,3.2rem);letter-spacing:0.5px}
-.top-text .subtitle{margin-top:8px;opacity:0.95;font-size:clamp(0.9rem,2.2vw,1.15rem)}
-.content{padding:40px 16px;max-width:900px;margin:0 auto;background:rgba(255,255,255,0.06);border-radius:8px}
 
 
 .icon-section {
@@ -164,11 +151,16 @@ body {
   width: 100%;
 }
 
-body {
-  background-color: #86a8e7;
-  font-size: 16px;
-  margin-top: 5em;
 }
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif}
+body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#fff}
+.top-text{padding:48px 16px;text-align:center}
+.top-text .container{max-width:900px;margin:0 auto}
+.top-text h1{margin:0;font-size:clamp(1.6rem,4vw,3.2rem);letter-spacing:0.5px}
+.top-text .subtitle{margin-top:8px;opacity:0.95;font-size:clamp(0.9rem,2.2vw,1.15rem)}
+.content{padding:40px 16px;max-width:900px;margin:0 auto;background:rgba(255,255,255,0.06);border-radius:8px}
+
 
 * {
   -webkit-box-sizing: border-box;
@@ -176,8 +168,8 @@ body {
 }
 
 .dino {
-  width: 16em;
-  height: 20em;
+  width: 14em;
+  height: 16em;
   margin: 0 auto;
   position: relative;
   -webkit-animation: walk-bounce-animation 1.5s infinite;
@@ -185,10 +177,11 @@ body {
 }
 
 .dino__head {
-  height: 47%;
+  height: 45%;
   margin-left: 33.333%;
   width: 66.666%;
   position: relative;
+  margin-top: 15%;
 }
 
 .dino__head__back {
