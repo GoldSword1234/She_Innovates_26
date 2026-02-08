@@ -109,16 +109,26 @@
             </h2>
           `;
 
-          // Arrow click -> go to a task page (or lesson detail page)
-          // You can change "tasks.html" to whatever page you want.
-          const btn = lessonDiv.querySelector("button.btn");
-          btn.addEventListener("click", () => {
-            const url = new URL("tasks.html", window.location.href);
-            url.searchParams.set("lessonid", String(lesson.lessonid ?? ""));
-            url.searchParams.set("modulename", String(lesson.modulename ?? ""));
-            url.searchParams.set("moduletype", String(lesson.moduletype ?? ""));
-            window.location.href = url.toString();
-          });
+const btn = lessonDiv.querySelector("button.btn");
+
+btn.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  // Pick a video URL from this lesson's tasks (first non-empty URL)
+  const videoUrl =
+    Array.isArray(lesson.tasks)
+      ? (lesson.tasks.find(t => t?.URL)?.URL ?? "")
+      : "";
+
+  if (!videoUrl) {
+    alert("No video URL found for this lesson.");
+    return;
+  }
+
+  // open video in a new tab
+  window.open(videoUrl, "_blank", "noopener,noreferrer");
+});
+
 
           container.appendChild(lessonDiv);
         });
