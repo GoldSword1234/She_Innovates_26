@@ -96,6 +96,61 @@ jwt = JWTManager(app)
 # ======================
 # Register User
 # ======================
+# @app.route("/register", methods=["POST"])
+# def register():
+#     data = request.json
+#     username = data.get("username")
+#     password = data.get("password")
+#     firstname = data.get("firstname")
+#     lastname = data.get("lastname")
+#     dateofbirth = data.get("dateofbirth")  # Expecting 'YYYY-MM-DD' format
+
+#     # Validate required fields
+#     if not all([username, password, firstname, lastname, dateofbirth]):
+#         return jsonify({"error": "All fields are required"}), 400
+
+#     # Convert date string to date object
+#     try:
+#         dob = datetime.strptime(dateofbirth, "%Y-%m-%d").date()
+#     except ValueError:
+#         return jsonify({"error": "Invalid date format, use YYYY-MM-DD"}), 400
+
+#     # Hash password
+#     password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+#     # SQL queries
+#     insert_auth_user = text("""
+#         INSERT INTO "MadDadSkills".auth_users (username, password_hash)
+#         VALUES (:username, :password_hash)
+#         RETURNING id
+#     """)
+
+#     insert_user = text("""
+#         INSERT INTO "MadDadSkills".users (auth_user_id, firstname, lastname, dateofbirth)
+#         VALUES (:auth_user_id, :firstname, :lastname, :dateofbirth)
+#     """)
+
+#     try:
+#         with engine.begin() as conn:  # Transaction begins
+#             # Insert into auth_users
+#             result = conn.execute(insert_auth_user, {
+#                 "username": username,
+#                 "password_hash": password_hash
+#             })
+#             auth_user_id = result.scalar()  # Get new auth_user ID
+
+#             # Insert into users table
+#             conn.execute(insert_user, {
+#                 "auth_user_id": auth_user_id,
+#                 "firstname": firstname,
+#                 "lastname": lastname,
+#                 "dateofbirth": dob
+#             })
+
+#         return jsonify({"message": "User registered successfully"}), 201
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 @app.route("/register", methods=["POST"])
 def register():
     data = request.json
@@ -103,22 +158,21 @@ def register():
     password = data.get("password")
     firstname = data.get("firstname")
     lastname = data.get("lastname")
-    dateofbirth = data.get("dateofbirth")  # Expecting 'YYYY-MM-DD' format
+    dateofbirth = data.get("dateofbirth")
 
-    # Validate required fields
     if not all([username, password, firstname, lastname, dateofbirth]):
         return jsonify({"error": "All fields are required"}), 400
 
-    # Convert date string to date object
     try:
         dob = datetime.strptime(dateofbirth, "%Y-%m-%d").date()
     except ValueError:
-        return jsonify({"error": "Invalid date format, use YYYY-MM-DD"}), 400
+        return jsonify({"error": "Invalid date format"}), 400
 
-    # Hash password
-    password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    password_hash = bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
 
-    # SQL queries
     insert_auth_user = text("""
         INSERT INTO "MadDadSkills".auth_users (username, password_hash)
         VALUES (:username, :password_hash)
@@ -128,26 +182,53 @@ def register():
     insert_user = text("""
         INSERT INTO "MadDadSkills".users (auth_user_id, firstname, lastname, dateofbirth)
         VALUES (:auth_user_id, :firstname, :lastname, :dateofbirth)
+        RETURNING userid
+    """)
+
+    get_not_started_status = text("""
+        SELECT taskstatusid
+        FROM "MadDadSkills".task_status
+        WHERE status = 'Not Started'
+    """)
+
+    insert_tasks = text("""
+        INSERT INTO "MadDadSkills".tasks (userid, lessonid, taskstatusid)
+        SELECT :user_id, lessonid, :status_id
+        FROM "MadDadSkills".lesson
     """)
 
     try:
-        with engine.begin() as conn:  # Transaction begins
-            # Insert into auth_users
-            result = conn.execute(insert_auth_user, {
+        with engine.begin() as conn:
+            # 1️⃣ Create auth user
+            auth_result = conn.execute(insert_auth_user, {
                 "username": username,
                 "password_hash": password_hash
             })
-            auth_user_id = result.scalar()  # Get new auth_user ID
+            auth_user_id = auth_result.scalar()
 
-            # Insert into users table
-            conn.execute(insert_user, {
+            # 2️⃣ Create user
+            user_result = conn.execute(insert_user, {
                 "auth_user_id": auth_user_id,
                 "firstname": firstname,
                 "lastname": lastname,
                 "dateofbirth": dob
             })
+            user_id = user_result.scalar()
 
-        return jsonify({"message": "User registered successfully"}), 201
+            # 3️⃣ Get "Not Started" status ID
+            status_result = conn.execute(get_not_started_status).fetchone()
+            if not status_result:
+                raise Exception("Task status 'Not Started' not found")
+
+            not_started_id = status_result[0]
+
+            # 4️⃣ Create tasks for ALL lessons
+            conn.execute(insert_tasks, {
+                "user_id": user_id,
+                "status_id": not_started_id
+            })
+
+        return jsonify({"message": "User registered and tasks initialized"}), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
