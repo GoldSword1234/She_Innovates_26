@@ -1,0 +1,19 @@
+/* Scoped hover effect for modules list only */
+#modulesRoot .module-card {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  will-change: transform;
+  border-radius: 8px; /* matches typical card rounding; harmless if present */
+}
+
+/* Hover and keyboard-focus (accessible) state */
+#modulesRoot .module-card:hover,
+#modulesRoot .module-card:focus-within {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+  z-index: 2;
+}
+
+/* Keep internal button transition subtle */
+#modulesRoot .module-card .btn {
+  transition: background-color 150ms ease, color 150ms ease;
+}
